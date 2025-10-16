@@ -144,7 +144,7 @@ def eigenattn(
 
                     rank_kq = num_heads * torch.amax((torch.cumsum(eval_kq, dim = 1) < args.eigen_attn_params['threshold']).sum(1))
                     rank_v = num_heads * torch.amax((torch.cumsum(eval_v, dim = 1) < args.eigen_attn_params['threshold']).sum(1))
-
+                    qlayer = DecoderLayer(layer, args, basis_kq, rank_kq, basis_v, rank_v, lm.model.config).to(dev)
                     output_hr = torch.stack([layer(inps[j].unsqueeze(0), attention_mask=attention_mask)[0] for j in range(args.nsamples)])
                     while error < args.error_budget and args.eigen_attn_params['threshold']> 0.3 and rank_kq > 64 and rank_v > 64:
                         output_lr = torch.stack([qlayer(inps[j].unsqueeze(0), attention_mask=attention_mask)[0] for j in range(args.nsamples)])
